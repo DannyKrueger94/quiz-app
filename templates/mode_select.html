@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleziona Modalità - Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px;
+            max-width: 600px;
+            width: 100%;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .mode-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mode-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .mode-card h2 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .mode-card p {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .team-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .team-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .team-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Quiz Game</h1>
+        <p class="subtitle">Scegli come vuoi giocare</p>
+
+        <div class="mode-options">
+            <a href="/quiz" class="mode-card" onclick="event.preventDefault(); document.getElementById('singleForm').submit();">
+                <div class="icon">👤</div>
+                <h2>Modalità Singola</h2>
+                <p>Gioca da solo e testa le tue conoscenze!</p>
+            </a>
+
+            <div class="mode-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="icon">👥</div>
+                <h2>Modalità Squadra</h2>
+                <p>Gioca in squadra con votazioni collaborative!</p>
+                <div class="team-options">
+                    <a href="/team/create" class="team-btn">Crea Squadra</a>
+                    <a href="/team/join" class="team-btn">Unisciti</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="singleForm" action="/quiz" method="POST" style="display: none;">
+        <input type="hidden" name="name" value="Giocatore Singolo">
+        <input type="hidden" name="password" value="quizdanny2025">
+    </form>
+</body>
+</html>

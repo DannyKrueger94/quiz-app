@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobby Squadra - Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px;
+            max-width: 700px;
+            width: 100%;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        h1 {
+            color: #f5576c;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .team-name {
+            text-align: center;
+            color: #666;
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .info-value {
+            color: #666;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+
+        .members-section {
+            margin-bottom: 30px;
+        }
+
+        .members-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .member-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .member-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+        }
+
+        .start-button {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(17, 153, 142, 0.4);
+        }
+
+        .waiting-message {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+            padding: 20px;
+            background: #fff3cd;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👥 Lobby Squadra</h1>
+        <p class="team-name">{{ team.name }}</p>
+
+        <div class="info-section">
+            <div class="info-row">
+                <span class="info-label">🔑 ID Squadra:</span>
+                <span class="info-value">{{ team_id }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">👑 Admin:</span>
+                <span class="info-value">{{ team.admin_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">👤 Membri Connessi:</span>
+                <span class="info-value">{{ member_count + 1 }} / 7</span>
+            </div>
+        </div>
+
+        <div class="members-section">
+            <h3>Membri della Squadra:</h3>
+            <div class="member-list">
+                <div class="member-badge admin-badge">
+                    👑 {{ team.admin_name }}
+                </div>
+                {% for i in range(member_count) %}
+                <div class="member-badge">
+                    Membro {{ i + 1 }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if is_admin %}
+        <form action="/team/start" method="POST">
+            <button type="submit" class="start-button">🚀 Avvia Quiz</button>
+        </form>
+        {% else %}
+        <div class="waiting-message pulse">
+            ⏳ In attesa che l'admin avvii il quiz...
+        </div>
+        {% endif %}
+    </div>
+
+    {% if not is_admin %}
+    <script>
+        // Auto-refresh per membri non-admin per vedere quando inizia il quiz
+        setTimeout(() => location.reload(), 3000);
+    </script>
+    {% endif %}
+</body>
+</html>

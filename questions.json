@@ -118,6 +118,32 @@
     },
     {
         "id": 10,
+        "question": "Signore degli Anelli: Il nome "Galadriel" in Quenya (elfico) significa:",
+        "answers": {
+            "A": "Regina degli Elfi",
+            "B": "Fanciulla coronata da una ghirlanda radiosa",
+            "C": "Strega dei Boschi Antichi",
+            "D": "Figlia di Celeborn",
+            "E": "Luce della foresta"
+        },
+        "correct": "A",
+        "image": "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 11,
+        "question": "Anime: Quando è stato registrato il primo cortometraggio di animazione giapponese?",
+        "answers": {
+            "A": "1963",
+            "B": "1976",
+            "C": "1932",
+            "D": "1917",
+            "E": "1955"
+        },
+        "correct": "D",
+        "image": "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 12,
         "question": "Quali patatine mi piacciono?",
         "answers": {
             "A": "Lime pepe rosa",
@@ -127,6 +153,6 @@
             "E": "Al Pollo"
         },
         "correct": "D",
-        "image": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=600&h=400&fit=crop"
+        "image": "https://images.unsplash.com/photo-1628191010210-a59de33e1ff7?w=600&h=400&fit=crop"
     }
 ]

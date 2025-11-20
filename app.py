@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import json
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # Cambia la chiave!
@@ -8,6 +9,19 @@ ADMIN_PASSWORD = "admin123"        # Cambiala!
 
 QUESTIONS_FILE = "questions.json"
 DATA_FILE = "data.json"
+TEAMS_FILE = "teams.json"
+
+# In-memory storage for active teams (for real-time features)
+active_teams = {}
+# Structure: {team_id: {
+#     "name": str,
+#     "password": str,
+#     "admin_session": str,
+#     "members": [session_ids],
+#     "current_question": int,
+#     "votes": {member_session: answer},
+#     "answers": {}
+# }}
 
 def load_questions():
     with open(QUESTIONS_FILE, "r", encoding="utf-8") as f:
@@ -44,7 +58,257 @@ def save_submission(name, answers, score):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return redirect(url_for("select_mode"))
+
+@app.route("/mode")
+def select_mode():
+    """Scegli tra modalità singola o squadra"""
+    return render_template("mode_select.html")
+
+@app.route("/team/create")
+def create_team():
+    """Form per creare una nuova squadra"""
+    return render_template("team_create.html")
+
+@app.route("/team/create", methods=["POST"])
+def create_team_post():
+    """Crea una nuova squadra e diventa admin"""
+    team_name = request.form.get("team_name")
+    team_password = request.form.get("team_password")
+    admin_name = request.form.get("admin_name")
+    
+    if not team_name or not team_password or not admin_name:
+        return "Tutti i campi sono obbligatori", 400
+    
+    # Generate unique team ID
+    team_id = f"team_{len(active_teams) + 1}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    
+    # Create team
+    active_teams[team_id] = {
+        "name": team_name,
+        "password": team_password,
+        "admin_session": session.sid if hasattr(session, 'sid') else id(session),
+        "admin_name": admin_name,
+        "members": [],
+        "current_question": 0,
+        "votes": {},
+        "answers": {},
+        "final_answer": None
+    }
+    
+    # Set session data
+    session["team_id"] = team_id
+    session["is_team_admin"] = True
+    session["player_name"] = admin_name
+    
+    return redirect(url_for("team_lobby"))
+
+@app.route("/team/join")
+def join_team():
+    """Form per unirsi a una squadra"""
+    return render_template("team_join.html")
+
+@app.route("/team/join", methods=["POST"])
+def join_team_post():
+    """Unisciti a una squadra esistente"""
+    team_id = request.form.get("team_id")
+    team_password = request.form.get("team_password")
+    member_name = request.form.get("member_name")
+    
+    if not team_id or not team_password or not member_name:
+        return "Tutti i campi sono obbligatori", 400
+    
+    # Check if team exists
+    if team_id not in active_teams:
+        return render_template("team_error.html", message="Squadra non trovata")
+    
+    team = active_teams[team_id]
+    
+    # Check password
+    if team["password"] != team_password:
+        return render_template("team_error.html", message="Password errata")
+    
+    # Check if team is full (max 6 members + 1 admin)
+    if len(team["members"]) >= 6:
+        return render_template("team_error.html", message="Squadra piena (massimo 6 membri)")
+    
+    # Add member
+    member_session_id = session.sid if hasattr(session, 'sid') else id(session)
+    if member_session_id not in team["members"]:
+        team["members"].append(member_session_id)
+    
+    # Set session data
+    session["team_id"] = team_id
+    session["is_team_admin"] = False
+    session["player_name"] = member_name
+    
+    return redirect(url_for("team_lobby"))
+
+@app.route("/team/lobby")
+def team_lobby():
+    """Lobby della squadra - mostra membri connessi"""
+    team_id = session.get("team_id")
+    if not team_id or team_id not in active_teams:
+        return redirect(url_for("select_mode"))
+    
+    team = active_teams[team_id]
+    is_admin = session.get("is_team_admin", False)
+    
+    return render_template("team_lobby.html", 
+                         team=team, 
+                         team_id=team_id,
+                         is_admin=is_admin,
+                         member_count=len(team["members"]))
+
+@app.route("/team/start", methods=["POST"])
+def start_team_quiz():
+    """L'admin avvia il quiz per tutta la squadra"""
+    team_id = session.get("team_id")
+    if not team_id or team_id not in active_teams:
+        return redirect(url_for("select_mode"))
+    
+    if not session.get("is_team_admin"):
+        return "Solo l'admin può avviare il quiz", 403
+    
+    team = active_teams[team_id]
+    team["current_question"] = 0
+    team["votes"] = {}
+    team["answers"] = {}
+    team["final_answer"] = None
+    
+    return redirect(url_for("team_quiz"))
+
+@app.route("/team/quiz")
+def team_quiz():
+    """Schermata quiz per la squadra"""
+    team_id = session.get("team_id")
+    if not team_id or team_id not in active_teams:
+        return redirect(url_for("select_mode"))
+    
+    team = active_teams[team_id]
+    questions = load_questions()
+    current_idx = team["current_question"]
+    
+    if current_idx >= len(questions):
+        return redirect(url_for("team_submit"))
+    
+    current_question = questions[current_idx]
+    is_admin = session.get("is_team_admin", False)
+    
+    # Get current votes
+    votes_summary = {}
+    for answer in ["A", "B", "C", "D", "E"]:
+        votes_summary[answer] = sum(1 for v in team["votes"].values() if v == answer)
+    
+    return render_template("team_quiz.html",
+                         question=current_question,
+                         current=current_idx + 1,
+                         total=len(questions),
+                         is_admin=is_admin,
+                         team=team,
+                         votes=votes_summary,
+                         final_answer=team.get("final_answer"))
+
+@app.route("/team/vote", methods=["POST"])
+def team_vote():
+    """Un membro vota per una risposta"""
+    team_id = session.get("team_id")
+    if not team_id or team_id not in active_teams:
+        return jsonify({"error": "Team not found"}), 404
+    
+    if session.get("is_team_admin"):
+        return jsonify({"error": "Admin non può votare"}), 403
+    
+    team = active_teams[team_id]
+    answer = request.json.get("answer")
+    
+    if answer not in ["A", "B", "C", "D", "E"]:
+        return jsonify({"error": "Risposta non valida"}), 400
+    
+    # Store vote
+    member_session_id = session.sid if hasattr(session, 'sid') else id(session)
+    team["votes"][member_session_id] = answer
+    
+    # Calculate votes summary
+    votes_summary = {}
+    for ans in ["A", "B", "C", "D", "E"]:
+        votes_summary[ans] = sum(1 for v in team["votes"].values() if v == ans)
+    
+    return jsonify({"success": True, "votes": votes_summary})
+
+@app.route("/team/answer", methods=["POST"])
+def team_answer():
+    """L'admin conferma la risposta finale"""
+    team_id = session.get("team_id")
+    if not team_id or team_id not in active_teams:
+        return redirect(url_for("select_mode"))
+    
+    if not session.get("is_team_admin"):
+        return "Solo l'admin può confermare la risposta", 403
+    
+    team = active_teams[team_id]
+    questions = load_questions()
+    current_idx = team["current_question"]
+    
+    if current_idx >= len(questions):
+        return redirect(url_for("team_submit"))
+    
+    answer = request.form.get("answer")
+    if answer:
+        team["answers"][str(questions[current_idx]["id"])] = answer
+        team["current_question"] = current_idx + 1
+        team["votes"] = {}  # Reset votes for next question
+        team["final_answer"] = None
+    
+    return redirect(url_for("team_quiz"))
+
+@app.route("/team/submit")
+def team_submit():
+    """Invia i risultati della squadra"""
+    team_id = session.get("team_id")
+    if not team_id or team_id not in active_teams:
+        return redirect(url_for("select_mode"))
+    
+    team = active_teams[team_id]
+    questions = load_questions()
+    
+    score = 0
+    for q in questions:
+        q_id = str(q["id"])
+        ans = team["answers"].get(q_id)
+        if ans == q["correct"]:
+            score += 1
+    
+    save_submission(team["name"], team["answers"], score)
+    
+    is_admin = session.get("is_team_admin", False)
+    
+    return render_template("team_final.html", 
+                         score=score, 
+                         total=len(questions), 
+                         team_name=team["name"],
+                         is_admin=is_admin)
+
+@app.route("/team/data")
+def team_data():
+    """API endpoint per aggiornamenti real-time"""
+    team_id = session.get("team_id")
+    if not team_id or team_id not in active_teams:
+        return jsonify({"error": "Team not found"}), 404
+    
+    team = active_teams[team_id]
+    
+    # Calculate votes summary
+    votes_summary = {}
+    for answer in ["A", "B", "C", "D", "E"]:
+        votes_summary[answer] = sum(1 for v in team["votes"].values() if v == answer)
+    
+    return jsonify({
+        "current_question": team["current_question"],
+        "votes": votes_summary,
+        "member_count": len(team["members"]),
+        "final_answer": team.get("final_answer")
+    })
 
 @app.route("/quiz", methods=["POST"])
 def start_quiz():
