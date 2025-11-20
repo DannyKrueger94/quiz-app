@@ -1,0 +1,41 @@
+[
+    {
+        "id": 1,
+        "question": "Qual è la capitale d'Italia?",
+        "answers": {
+            "A": "Milano",
+            "B": "Roma",
+            "C": "Torino",
+            "D": "Napoli",
+            "E": "Venezia"
+        },
+        "correct": "B",
+        "image": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 2,
+        "question": "Come mi chiamo",
+        "answers": {
+            "A": "Luca",
+            "B": "Paolo",
+            "C": "Ginop",
+            "D": "Cacca",
+            "E": "Fifi"
+        },
+        "correct": "D",
+        "image": ""
+    },
+    {
+        "id": 3,
+        "question": "Quali patatine mi piacciono",
+        "answers": {
+            "A": "Lime pepe rosa",
+            "B": "Barbecue",
+            "C": "Classiche",
+            "D": "Rustiche",
+            "E": "Al Pollo"
+        },
+        "correct": "D",
+        "image": ""
+    }
+]

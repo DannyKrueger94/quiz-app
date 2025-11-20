@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Risultati</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .stats-box {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .section-title {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+        
+        .questions-list {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .question-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .question-card:hover {
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .question-header {
+            display: flex;
+            align-items: start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .question-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+        
+        .question-text {
+            color: #333;
+            font-size: 1.2em;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .answers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .answer-item {
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-size: 0.95em;
+        }
+        
+        .answer-item.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            font-weight: 600;
+        }
+        
+        .answer-key {
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .correct-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .results-table {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1em;
+            white-space: nowrap;
+        }
+        
+        th:first-child {
+            border-radius: 10px 0 0 0;
+        }
+        
+        th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background 0.3s ease;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        td {
+            padding: 15px;
+            color: #333;
+        }
+        
+        .team-name {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+        
+        .score-cell {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .score-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .score-high {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .score-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .score-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .answer-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 5px;
+            margin: 2px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        
+        .answer-correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .answer-wrong {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .btn-logout {
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-logout:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-delete {
+            padding: 8px 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-delete:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .btn-delete-all {
+            padding: 12px 24px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .btn-delete-all:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        }
+        
+        .actions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                text-align: center;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+                justify-content: center;
+            }
+            
+            .stats-box {
+                justify-content: center;
+            }
+            
+            .section-title {
+                font-size: 1.4em;
+            }
+            
+            .answers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.85em;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span>📊</span> Pannello Admin</h1>
+            <div class="stats-box">
+                <div class="stat">
+                    <div class="stat-value">{{ questions|length }}</div>
+                    <div class="stat-label">Domande</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">{{ data|length }}</div>
+                    <div class="stat-label">Squadre</div>
+                </div>
+            </div>
+            <a href="/" class="btn-logout">← Home</a>
+        </div>
+        
+        <!-- Sezione Domande -->
+        <div class="section">
+            <h2 class="section-title"><span>📝</span> Domande del Quiz</h2>
+            <div class="questions-list">
+                {% for q in questions %}
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="question-number">{{ q.id }}</div>
+                        <div class="question-text">{{ q.question }}</div>
+                    </div>
+                    <div class="answers-grid">
+                        {% for key, val in q.answers.items() %}
+                        <div class="answer-item {% if key == q.correct %}correct{% endif %}">
+                            <span class="answer-key">{{ key }}.</span> {{ val }}
+                            {% if key == q.correct %}
+                            <span class="correct-badge">✓ CORRETTA</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Sezione Risultati Squadre -->
+        <div class="section">
+            <div class="actions-header">
+                <h2 class="section-title" style="margin-bottom: 0; border: none; padding-bottom: 0;"><span>🏆</span> Risultati Squadre</h2>
+                {% if data|length > 0 %}
+                <form action="/admin/delete-all" method="POST" onsubmit="return confirm('Sei sicuro di voler eliminare TUTTI i risultati?');" style="margin: 0;">
+                    <button type="submit" class="btn-delete-all">🗑️ Elimina Tutti</button>
+                </form>
+                {% endif %}
+            </div>
+            
+            {% if data|length > 0 %}
+            <div class="results-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Squadra</th>
+                            <th>Punteggio</th>
+                            {% for q in questions %}
+                            <th>Q{{ q.id }}</th>
+                            {% endfor %}
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in data %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td class="team-name">{{ p.name }}</td>
+                            <td class="score-cell">
+                                <span class="score-badge {% if p.score >= (questions|length * 0.7) %}score-high{% elif p.score >= (questions|length * 0.4) %}score-medium{% else %}score-low{% endif %}">
+                                    {{ p.score }}/{{ questions|length }}
+                                </span>
+                            </td>
+                            {% for q in questions %}
+                            <td>
+                                {% set user_answer = p.answers[q.id|string] %}
+                                {% if user_answer %}
+                                    <span class="answer-badge {% if user_answer == q.correct %}answer-correct{% else %}answer-wrong{% endif %}">
+                                        {{ user_answer }}
+                                        {% if user_answer != q.correct %}
+                                        <small>({{ q.correct }})</small>
+                                        {% endif %}
+                                    </span>
+                                {% else %}
+                                    <span style="color: #999;">-</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                            <td>
+                                <form action="/admin/delete/{{ loop.index0 }}" method="POST" style="margin: 0;" onsubmit="return confirm('Eliminare {{ p.name }}?');">
+                                    <button type="submit" class="btn-delete">🗑️ Elimina</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="icon">📭</div>
+                <h2>Nessuna squadra</h2>
+                <p>Non ci sono ancora squadre che hanno completato il quiz.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
