@@ -6,6 +6,10 @@ import uuid
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # Cambia la chiave!
+# Configurazione session più robusta per persistenza
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 ora
 ADMIN_PASSWORD = "admin123"        # Cambiala!
 
 QUESTIONS_FILE = "questions.json"
@@ -62,12 +66,12 @@ def save_submission(name, answers, score):
 
 @app.route("/")
 def index():
-    return redirect(url_for("select_mode"))
+    return redirect(url_for("create_team"))
 
 @app.route("/mode")
 def select_mode():
-    """Scegli tra modalità singola o squadra"""
-    return render_template("mode_select.html")
+    """Redirect a creazione squadra (modalità singola rimossa)"""
+    return redirect(url_for("create_team"))
 
 @app.route("/team/create")
 def create_team():
@@ -90,11 +94,14 @@ def create_team_post():
     team_name_clean = team_name.replace(" ", "_").lower()[:15]  # Max 15 chars
     team_id = f"{team_name_clean}_{random_num}"
     
+    # Generate unique admin ID per supportare multi-squadra
+    admin_id = str(uuid.uuid4())
+    
     # Create team (password case insensitive)
     active_teams[team_id] = {
         "name": team_name,
         "password": team_password.lower(),
-        "admin_session": session.sid if hasattr(session, 'sid') else id(session),
+        "admin_id": admin_id,  # UUID univoco per admin
         "admin_name": admin_name,
         "members": [],
         "member_names": {},
@@ -105,8 +112,10 @@ def create_team_post():
         "admin_selected_answer": None  # Traccia cosa seleziona admin in tempo reale
     }
     
-    # Set session data
+    # Set session data con UUID univoco
+    session.permanent = True  # Rende la session persistente
     session["team_id"] = team_id
+    session["admin_id"] = admin_id  # Salva admin ID univoco
     session["is_team_admin"] = True
     session["player_name"] = admin_name
     
@@ -151,15 +160,21 @@ def join_team_post():
     # Generate unique member ID
     member_id = str(uuid.uuid4())
     
+    print(f"[JOIN] Nuovo membro: {member_name} | ID: {member_id} | Team: {found_team_id}")
+    
     # Add member
     team["members"].append(member_id)
     team["member_names"][member_id] = member_name
     
     # Set session data
+    session.permanent = True  # Rende la session persistente
     session["team_id"] = found_team_id
     session["is_team_admin"] = False
     session["player_name"] = member_name
     session["member_id"] = member_id  # Salva l'ID univoco in session
+    
+    print(f"[JOIN] Session salvata: team_id={session.get('team_id')}, member_id={session.get('member_id')}")
+    print(f"[JOIN] Membri totali in team: {len(team['members'])}")
     
     return redirect(url_for("team_lobby"))
 
@@ -184,10 +199,13 @@ def start_team_quiz():
     """L'admin avvia il quiz per tutta la squadra"""
     team_id = session.get("team_id")
     if not team_id or team_id not in active_teams:
-        return redirect(url_for("select_mode"))
+        return redirect(url_for("create_team"))
     
-    if not session.get("is_team_admin"):
-        return "Solo l'admin può avviare il quiz", 403
+    # Verifica che sia l'admin della PROPRIA squadra
+    team = active_teams[team_id]
+    admin_id = session.get("admin_id")
+    if not admin_id or team["admin_id"] != admin_id:
+        return "Solo l'admin di questa squadra può avviare il quiz", 403
     
     team = active_teams[team_id]
     team["current_question"] = 0
@@ -247,9 +265,18 @@ def team_vote():
     # Store vote usando member_id dalla session
     member_id = session.get("member_id")
     if not member_id:
+        print(f"[ERROR] Member ID non trovato in session per team {team_id}")
+        print(f"[DEBUG] Session data: {dict(session)}")
         return jsonify({"error": "Member ID not found"}), 400
     
+    # Debug logging
+    print(f"[VOTE] Team: {team_id}, Member: {member_id}, Answer: {answer}")
+    print(f"[VOTE] Votes PRIMA: {team['votes']}")
+    
     team["votes"][member_id] = answer
+    
+    print(f"[VOTE] Votes DOPO: {team['votes']}")
+    print(f"[VOTE] Numero totale voti: {len(team['votes'])}")
     
     # Calculate votes summary
     votes_summary = {}
@@ -265,8 +292,11 @@ def admin_select():
     if not team_id or team_id not in active_teams:
         return jsonify({"error": "Team not found"}), 404
     
-    if not session.get("is_team_admin"):
-        return jsonify({"error": "Solo l'admin può selezionare"}), 403
+    # Verifica admin_id per multi-squadra
+    team = active_teams[team_id]
+    admin_id = session.get("admin_id")
+    if not admin_id or team["admin_id"] != admin_id:
+        return jsonify({"error": "Solo l'admin di questa squadra può selezionare"}), 403
     
     team = active_teams[team_id]
     answer = request.json.get("answer")
@@ -281,10 +311,13 @@ def team_answer():
     """L'admin conferma la risposta finale"""
     team_id = session.get("team_id")
     if not team_id or team_id not in active_teams:
-        return redirect(url_for("select_mode"))
+        return redirect(url_for("create_team"))
     
-    if not session.get("is_team_admin"):
-        return "Solo l'admin può confermare la risposta", 403
+    # Verifica admin_id per multi-squadra
+    team = active_teams[team_id]
+    admin_id = session.get("admin_id")
+    if not admin_id or team["admin_id"] != admin_id:
+        return "Solo l'admin di questa squadra può confermare la risposta", 403
     
     team = active_teams[team_id]
     questions = load_questions()
@@ -353,87 +386,7 @@ def team_data():
         "admin_selected": team.get("admin_selected_answer")  # Aggiunto per mostrare selezione admin
     })
 
-@app.route("/quiz", methods=["POST"])
-def start_quiz():
-    name = request.form.get("name")
-    password = request.form.get("password")
-    
-    if not name or not password:
-        return redirect(url_for("index"))
-    
-    # Check password
-    if password != "quizdanny2025":
-        return render_template("password_error.html")
-
-    session["player_name"] = name
-    session["current_question"] = 0
-    session["user_answers"] = {}
-    return redirect(url_for("quiz"))
-
-@app.route("/quiz")
-def quiz():
-    if "player_name" not in session:
-        return redirect(url_for("index"))
-    
-    questions = load_questions()
-    current_idx = session.get("current_question", 0)
-    
-    # Fix: Check if we've reached the end of questions
-    if current_idx >= len(questions):
-        return redirect(url_for("submit"))
-    
-    current_question = questions[current_idx]
-    total_questions = len(questions)
-    
-    return render_template("quiz.html", 
-                         question=current_question, 
-                         current=current_idx + 1, 
-                         total=total_questions)
-
-@app.route("/quiz/answer", methods=["POST"])
-def answer_question():
-    if "player_name" not in session:
-        return redirect(url_for("index"))
-    
-    questions = load_questions()
-    current_idx = session.get("current_question", 0)
-    
-    # Fix: Check bounds before accessing questions
-    if current_idx >= len(questions):
-        return redirect(url_for("submit"))
-    
-    answer = request.form.get("answer")
-    if answer:
-        user_answers = session.get("user_answers", {})
-        user_answers[str(questions[current_idx]["id"])] = answer
-        session["user_answers"] = user_answers
-    
-    session["current_question"] = current_idx + 1
-    return redirect(url_for("quiz"))
-
-@app.route("/submit")
-def submit():
-    if "player_name" not in session:
-        return redirect(url_for("index"))
-    
-    name = session.get("player_name")
-    user_answers = session.get("user_answers", {})
-    questions = load_questions()
-
-    score = 0
-    for q in questions:
-        q_id = str(q["id"])
-        ans = user_answers.get(q_id)
-        if ans == q["correct"]:
-            score += 1
-
-    save_submission(name, user_answers, score)
-    
-    # Clear session data
-    session.pop("current_question", None)
-    session.pop("user_answers", None)
-    
-    return render_template("final.html", score=score, total=len(questions), name=name)
+# Modalità singola rimossa - solo modalità squadra disponibile
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin_login():
