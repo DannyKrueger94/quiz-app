@@ -54,9 +54,9 @@ def start_quiz():
     if not name or not password:
         return redirect(url_for("index"))
     
-    # Check password (change "quiz2024" to your desired password)
+    # Check password
     if password != "quizdanny2025":
-        return "<h2>Password errata!</h2><a href='/'>Torna indietro</a>"
+        return render_template("password_error.html")
 
     session["player_name"] = name
     session["current_question"] = 0

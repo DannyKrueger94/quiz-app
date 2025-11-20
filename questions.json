@@ -66,7 +66,7 @@
     },
     {
         "id": 6,
-        "question": "Astronomia: Quale pianeta nel Sistema Solare ruota "al contrario"?",
+        "question": "Astronomia: Quale pianeta nel Sistema Solare ruota 'al contrario'?",
         "answers": {
             "A": "Saturno",
             "B": "Nettuno",
