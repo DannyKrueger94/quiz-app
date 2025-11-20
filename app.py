@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 import json
 import os
 from datetime import datetime
+import uuid
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # Cambia la chiave!
@@ -100,7 +101,8 @@ def create_team_post():
         "current_question": -1,  # -1 = lobby, 0+ = quiz started
         "votes": {},
         "answers": {},
-        "final_answer": None
+        "final_answer": None,
+        "admin_selected_answer": None  # Traccia cosa seleziona admin in tempo reale
     }
     
     # Set session data
@@ -146,16 +148,18 @@ def join_team_post():
     if len(team["members"]) >= 6:
         return render_template("team_error.html", message="Squadra piena (massimo 6 membri)")
     
+    # Generate unique member ID
+    member_id = str(uuid.uuid4())
+    
     # Add member
-    member_session_id = session.sid if hasattr(session, 'sid') else id(session)
-    if member_session_id not in team["members"]:
-        team["members"].append(member_session_id)
-        team["member_names"][member_session_id] = member_name
+    team["members"].append(member_id)
+    team["member_names"][member_id] = member_name
     
     # Set session data
     session["team_id"] = found_team_id
     session["is_team_admin"] = False
     session["player_name"] = member_name
+    session["member_id"] = member_id  # Salva l'ID univoco in session
     
     return redirect(url_for("team_lobby"))
 
@@ -240,9 +244,12 @@ def team_vote():
     if answer not in ["A", "B", "C", "D", "E"]:
         return jsonify({"error": "Risposta non valida"}), 400
     
-    # Store vote
-    member_session_id = session.sid if hasattr(session, 'sid') else id(session)
-    team["votes"][member_session_id] = answer
+    # Store vote usando member_id dalla session
+    member_id = session.get("member_id")
+    if not member_id:
+        return jsonify({"error": "Member ID not found"}), 400
+    
+    team["votes"][member_id] = answer
     
     # Calculate votes summary
     votes_summary = {}
@@ -250,6 +257,24 @@ def team_vote():
         votes_summary[ans] = sum(1 for v in team["votes"].values() if v == ans)
     
     return jsonify({"success": True, "votes": votes_summary})
+
+@app.route("/team/admin/select", methods=["POST"])
+def admin_select():
+    """L'admin seleziona una risposta (non conferma ancora) - i membri vedono la selezione"""
+    team_id = session.get("team_id")
+    if not team_id or team_id not in active_teams:
+        return jsonify({"error": "Team not found"}), 404
+    
+    if not session.get("is_team_admin"):
+        return jsonify({"error": "Solo l'admin può selezionare"}), 403
+    
+    team = active_teams[team_id]
+    answer = request.json.get("answer")
+    
+    # Salva la selezione temporanea dell'admin
+    team["admin_selected_answer"] = answer
+    
+    return jsonify({"success": True, "selected": answer})
 
 @app.route("/team/answer", methods=["POST"])
 def team_answer():
@@ -274,6 +299,7 @@ def team_answer():
         team["current_question"] = current_idx + 1
         team["votes"] = {}  # Reset votes for next question
         team["final_answer"] = None
+        team["admin_selected_answer"] = None  # Reset selezione admin
     
     return redirect(url_for("team_quiz"))
 
@@ -323,7 +349,8 @@ def team_data():
         "votes": votes_summary,
         "member_count": len(team["members"]),
         "member_names": list(team.get("member_names", {}).values()),
-        "final_answer": team.get("final_answer")
+        "final_answer": team.get("final_answer"),
+        "admin_selected": team.get("admin_selected_answer")  # Aggiunto per mostrare selezione admin
     })
 
 @app.route("/quiz", methods=["POST"])

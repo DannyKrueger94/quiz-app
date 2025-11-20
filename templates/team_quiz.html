@@ -160,6 +160,12 @@
             border-color: #f5576c;
         }
 
+        .admin-selected {
+            outline: 4px solid #ffd700 !important;
+            outline-offset: 2px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
         .answer-label:active {
             transform: scale(0.98);
         }
@@ -255,7 +261,11 @@
 
         <div class="question-section">
             <div class="role-badge {% if is_admin %}admin-role{% else %}member-role{% endif %}">
-                {% if is_admin %}👑 ADMIN{% else %}🗳️ MEMBRO{% endif %}
+                {% if is_admin %}
+                    👑 ADMIN - {{ session.player_name }}
+                {% else %}
+                    🗳️ MEMBRO DELLA SQUADRA: {{ team.name }} - {{ session.player_name }}
+                {% endif %}
             </div>
 
             {% if question.image %}
@@ -286,7 +296,7 @@
             </form>
             {% else %}
             <div class="members-info">
-                🗳️ Seleziona la tua risposta e vota. L'admin vedrà i voti di tutti!
+                🗳️ Seleziona la tua risposta e vota. Vedrai la selezione dell'admin evidenziata in <strong style="color: #ffd700;">oro</strong>!
             </div>
             <div class="answers" id="memberAnswers">
                 {% for key, value in question.answers.items() %}
@@ -373,6 +383,21 @@
             }
         }
 
+        function updateAdminSelection(selectedAnswer) {
+            // Rimuovi selezione admin precedente
+            document.querySelectorAll('.answer-label').forEach(label => {
+                label.classList.remove('admin-selected');
+            });
+            
+            // Evidenzia la selezione dell'admin con effetto dorato
+            if (selectedAnswer) {
+                const adminLabel = document.querySelector(`label[for="vote${selectedAnswer}"]`);
+                if (adminLabel) {
+                    adminLabel.classList.add('admin-selected');
+                }
+            }
+        }
+
         // Poll for updates
         setInterval(async () => {
             try {
@@ -385,6 +410,11 @@
                 }
                 
                 updateVotes(data.votes);
+                
+                // Mostra cosa sta selezionando l'admin
+                if (data.admin_selected) {
+                    updateAdminSelection(data.admin_selected);
+                }
                 
                 // Check if question changed (admin moved to next question)
                 const currentQ = {{ current - 1 }};
@@ -399,6 +429,25 @@
     </script>
     {% else %}
     <script>
+        // Admin: invia selezione in tempo reale quando seleziona una risposta
+        document.querySelectorAll('input[name="answer"]').forEach(radio => {
+            radio.addEventListener('change', async () => {
+                const answer = radio.value;
+                
+                try {
+                    await fetch('/team/admin/select', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ answer })
+                    });
+                } catch (error) {
+                    console.error('Error sending admin selection:', error);
+                }
+            });
+        });
+
         // Admin: Poll for vote updates
         setInterval(async () => {
             try {
