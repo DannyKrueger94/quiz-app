@@ -100,32 +100,6 @@
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
 
-        .team-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .team-btn {
-            background: rgba(255, 255, 255, 0.25);
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            color: white;
-            padding: 12px 8px;
-            border-radius: 10px;
-            text-decoration: none;
-            text-align: center;
-            transition: all 0.2s;
-            font-weight: bold;
-            font-size: 0.95em;
-            display: block;
-        }
-
-        .team-btn:active {
-            background: rgba(255, 255, 255, 0.4);
-            transform: scale(0.95);
-        }
-
         @media (max-width: 480px) {
             .container {
                 padding: 25px 15px;
@@ -146,39 +120,25 @@
             .mode-card p {
                 font-size: 0.9em;
             }
-
-            .team-btn {
-                padding: 10px 6px;
-                font-size: 0.9em;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎮 Quiz Game</h1>
-        <p class="subtitle">Scegli come vuoi giocare</p>
+        <p class="subtitle">Scegli la modalità di gioco in squadra</p>
 
         <div class="mode-options">
-            <a href="/quiz" class="mode-card" onclick="event.preventDefault(); document.getElementById('singleForm').submit();">
-                <h2><span class="icon">👤</span> Modalità Singola</h2>
-                <p>Gioca da solo e testa le tue conoscenze!</p>
+            <a href="/team/create" class="mode-card team-card">
+                <h2><span class="icon">➕</span> Crea Squadra</h2>
+                <p>Crea una nuova squadra e invita i tuoi amici a giocare insieme!</p>
             </a>
 
-            <div class="mode-card team-card">
-                <h2><span class="icon">👥</span> Modalità Squadra</h2>
-                <p>Gioca in squadra con votazioni collaborative!</p>
-                <div class="team-options">
-                    <a href="/team/create" class="team-btn">Crea Squadra</a>
-                    <a href="/team/join" class="team-btn">Unisciti</a>
-                </div>
-            </div>
+            <a href="/team/join" class="mode-card team-card">
+                <h2><span class="icon">🚪</span> Unisciti alla Squadra</h2>
+                <p>Hai già un Team ID? Unisciti a una squadra esistente!</p>
+            </a>
         </div>
     </div>
-
-    <form id="singleForm" action="/quiz" method="POST" style="display: none;">
-        <input type="hidden" name="name" value="Giocatore Singolo">
-        <input type="hidden" name="password" value="quizdanny2025">
-    </form>
 </body>
 </html>

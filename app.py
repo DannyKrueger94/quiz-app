@@ -66,12 +66,12 @@ def save_submission(name, answers, score):
 
 @app.route("/")
 def index():
-    return redirect(url_for("create_team"))
+    return redirect(url_for("select_mode"))
 
 @app.route("/mode")
 def select_mode():
-    """Redirect a creazione squadra (modalità singola rimossa)"""
-    return redirect(url_for("create_team"))
+    """Mostra schermata iniziale con scelta tra Crea e Unisciti"""
+    return render_template("mode_select.html")
 
 @app.route("/team/create")
 def create_team():
