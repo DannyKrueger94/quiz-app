@@ -211,15 +211,7 @@
         </div>
         
         <div class="message">
-            {% if (score / total * 100) >= 80 %}
-                🌟 Eccellente! Hai dimostrato una conoscenza straordinaria!
-            {% elif (score / total * 100) >= 60 %}
-                😊 Ottimo lavoro! Hai risposto correttamente alla maggior parte delle domande!
-            {% elif (score / total * 100) >= 40 %}
-                💪 Buon tentativo! Con un po' di studio puoi fare ancora meglio!
-            {% else %}
-                📖 Continua a studiare e riprova! La pratica porta alla perfezione!
-            {% endif %}
+            😎 Chiedi all'admin cos'hai cannato hehe
         </div>
         
         <div class="stats">
@@ -231,11 +223,6 @@
                 <div class="stat-value">{{ total - score }}</div>
                 <div class="stat-label">Sbagliate</div>
             </div>
-        </div>
-        
-        <div class="buttons">
-            <a href="/" class="btn btn-primary">Riprova 🔄</a>
-            <a href="/" class="btn btn-secondary">Home 🏠</a>
         </div>
     </div>
 </body>

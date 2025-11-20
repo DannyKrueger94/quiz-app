@@ -49,8 +49,14 @@ def index():
 @app.route("/quiz", methods=["POST"])
 def start_quiz():
     name = request.form.get("name")
-    if not name:
+    password = request.form.get("password")
+    
+    if not name or not password:
         return redirect(url_for("index"))
+    
+    # Check password (change "quiz2024" to your desired password)
+    if password != "quiz2024":
+        return "<h2>Password errata!</h2><a href='/'>Torna indietro</a>"
 
     session["player_name"] = name
     session["current_question"] = 0
