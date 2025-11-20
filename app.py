@@ -73,6 +73,7 @@ def create_team():
 @app.route("/team/create", methods=["POST"])
 def create_team_post():
     """Crea una nuova squadra e diventa admin"""
+    import random
     team_name = request.form.get("team_name")
     team_password = request.form.get("team_password")
     admin_name = request.form.get("admin_name")
@@ -80,8 +81,10 @@ def create_team_post():
     if not team_name or not team_password or not admin_name:
         return "Tutti i campi sono obbligatori", 400
     
-    # Generate unique team ID
-    team_id = f"team_{len(active_teams) + 1}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    # Generate unique team ID: team_name + random number 1-100
+    random_num = random.randint(1, 100)
+    team_name_clean = team_name.replace(" ", "_").lower()[:15]  # Max 15 chars
+    team_id = f"{team_name_clean}_{random_num}"
     
     # Create team
     active_teams[team_id] = {
@@ -392,17 +395,15 @@ def submit():
     
     return render_template("final.html", score=score, total=len(questions), name=name)
 
-@app.route("/admin")
+@app.route("/admin", methods=["GET", "POST"])
 def admin_login():
+    if request.method == "POST":
+        pwd = request.form.get("password")
+        if pwd == ADMIN_PASSWORD:
+            session["admin"] = True
+            return redirect(url_for("admin_panel"))
+        return "Password errata"
     return render_template("admin_login.html")
-
-@app.route("/admin", methods=["POST"])
-def admin_login_post():
-    pwd = request.form.get("password")
-    if pwd == ADMIN_PASSWORD:
-        session["admin"] = True
-        return redirect(url_for("admin_panel"))
-    return "Password errata"
 
 @app.route("/admin/panel")
 def admin_panel():

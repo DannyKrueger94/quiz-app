@@ -158,6 +158,12 @@
             padding: 5px 15px;
             border-radius: 20px;
             font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .vote-count.updated {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(245, 87, 108, 0.6);
         }
 
         .role-badge {
@@ -378,35 +384,53 @@
             for (const [answer, count] of Object.entries(votes)) {
                 const element = document.getElementById('votes' + answer);
                 if (element) {
+                    const oldCount = parseInt(element.textContent) || 0;
                     element.textContent = count;
+                    // Animazione se il voto è cambiato
+                    if (count !== oldCount) {
+                        element.classList.add('updated');
+                        setTimeout(() => element.classList.remove('updated'), 300);
+                    }
                 }
             }
         }
 
-        // Poll for updates
+        // Poll for updates - più frequente
         setInterval(async () => {
             try {
                 const response = await fetch('/team/data');
                 const data = await response.json();
                 
+                if (data.error) {
+                    console.error('Team data error:', data.error);
+                    return;
+                }
+                
                 updateVotes(data.votes);
                 
                 // Check if question changed (admin moved to next question)
-                if (data.current_question !== {{ current - 1 }}) {
+                const currentQ = {{ current - 1 }};
+                if (data.current_question !== currentQ) {
+                    console.log('Question changed, reloading...');
                     location.reload();
                 }
             } catch (error) {
                 console.error('Error polling updates:', error);
             }
-        }, 2000);
+        }, 1000);  // Ogni secondo invece di 2
     </script>
     {% else %}
     <script>
-        // Admin: Poll for vote updates
+        // Admin: Poll for vote updates - più frequente
         setInterval(async () => {
             try {
                 const response = await fetch('/team/data');
                 const data = await response.json();
+                
+                if (data.error) {
+                    console.error('Team data error:', data.error);
+                    return;
+                }
                 
                 // Update vote counts
                 for (const [answer, count] of Object.entries(data.votes)) {
@@ -415,10 +439,12 @@
                         element.textContent = count;
                     }
                 }
+                
+                console.log('Votes updated:', data.votes);
             } catch (error) {
                 console.error('Error polling updates:', error);
             }
-        }, 1500);
+        }, 800);  // Ogni 0.8 secondi per admin
     </script>
     {% endif %}
 </body>
