@@ -47,6 +47,7 @@
             font-size: 2.5em;
             margin-bottom: 15px;
             text-align: center;
+            line-height: 1.2;
         }
 
         .subtitle {
@@ -54,6 +55,22 @@
             color: #666;
             margin-bottom: 40px;
             font-size: 1em;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+                word-wrap: break-word;
+            }
+            
+            .subtitle {
+                font-size: 0.95em;
+            }
         }
 
         .form-group {

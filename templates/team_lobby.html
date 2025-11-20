@@ -206,17 +206,19 @@
 
     <script>
         {% if not is_admin %}
-        // Auto-refresh più frequente per membri non-admin
-        setInterval(() => {
-            fetch('/team/data')
-                .then(r => r.json())
-                .then(data => {
-                    // Se l'admin ha avviato il quiz, la current_question cambia da -1 a 0
-                    // Ricarica la pagina per andare al quiz
-                    location.reload();
-                })
-                .catch(err => console.error('Polling error:', err));
-        }, 1500);
+        // Membri: controlla se il quiz è iniziato
+        setInterval(async () => {
+            try {
+                const response = await fetch('/team/data');
+                const data = await response.json();
+                if (!data.error && data.current_question >= 0) {
+                    // Quiz iniziato, vai alla pagina quiz
+                    window.location.href = '/team/quiz';
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+            }
+        }, 1000);
         {% else %}
         // Admin: aggiorna contatore membri in tempo reale
         setInterval(async () => {
@@ -224,7 +226,6 @@
                 const response = await fetch('/team/data');
                 const data = await response.json();
                 if (!data.error) {
-                    // Aggiorna il contatore visivamente (opzionale)
                     console.log('Members:', data.member_count);
                 }
             } catch (error) {

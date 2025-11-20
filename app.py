@@ -93,7 +93,7 @@ def create_team_post():
         "admin_session": session.sid if hasattr(session, 'sid') else id(session),
         "admin_name": admin_name,
         "members": [],
-        "current_question": 0,
+        "current_question": -1,  # -1 = lobby, 0+ = quiz started
         "votes": {},
         "answers": {},
         "final_answer": None
