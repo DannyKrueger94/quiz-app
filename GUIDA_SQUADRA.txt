@@ -1,0 +1,152 @@
+╔══════════════════════════════════════════════════════════════════╗
+║          QUIZ APP - GUIDA RAPIDA MODALITÀ SQUADRA               ║
+╚══════════════════════════════════════════════════════════════════╝
+
+🎯 COSA È LA MODALITÀ SQUADRA?
+════════════════════════════════════════════════════════════════════
+Sistema collaborativo dove UNA persona (admin) risponde e fino a 6
+persone possono votare la risposta da dare. Tutti vedono la stessa
+schermata in tempo reale!
+
+
+👑 COME CREARE UNA SQUADRA (ADMIN)
+════════════════════════════════════════════════════════════════════
+1. Apri l'app: https://quiz-app-jykq.onrender.com
+2. Seleziona "Modalità Squadra" → "Crea Squadra"
+3. Inserisci:
+   - Nome squadra (es. "I Magnifici 7")
+   - Password squadra (es. "pizza2025")
+   - Il tuo nome (es. "Mario")
+4. Clicca "Crea Squadra"
+5. Nella lobby, CONDIVIDI con i tuoi amici:
+   - L'ID squadra (es. "team_1_20251120153045")
+   - La password squadra
+6. Quando tutti sono connessi, clicca "Avvia Quiz"
+
+
+🤝 COME UNIRSI A UNA SQUADRA (MEMBRO)
+════════════════════════════════════════════════════════════════════
+1. Apri l'app: https://quiz-app-jykq.onrender.com
+2. Seleziona "Modalità Squadra" → "Unisciti"
+3. Inserisci:
+   - ID squadra (chiedi all'admin!)
+   - Password squadra
+   - Il tuo nome
+4. Clicca "Unisciti alla Squadra"
+5. Attendi nella lobby che l'admin avvii il quiz
+
+
+🎮 DURANTE IL QUIZ
+════════════════════════════════════════════════════════════════════
+
+ADMIN:
+------
+✅ Vedi la domanda con le 5 risposte
+✅ Vedi i VOTI di tutti i membri in tempo reale
+✅ Puoi scegliere qualsiasi risposta (anche diversa dai voti!)
+✅ Clicchi "Conferma Risposta e Avanti" per passare alla prossima
+
+MEMBRI:
+-------
+✅ Vedono la STESSA domanda dell'admin
+✅ Selezionano una risposta e cliccano "Invia il Tuo Voto"
+✅ Vedono i voti degli altri membri
+✅ NON possono confermare la risposta (solo l'admin può!)
+✅ Aspettano che l'admin passi alla domanda successiva
+
+
+📊 PANNELLO VOTI (Visibile a tutti)
+════════════════════════════════════════════════════════════════════
+Sul lato destro della schermata:
+
+A  [3]  ← 3 persone hanno votato A
+B  [1]  ← 1 persona ha votato B
+C  [0]  ← 0 persone hanno votato C
+D  [2]  ← 2 persone hanno votato D
+E  [0]  ← 0 persone hanno votato E
+
+I voti si aggiornano AUTOMATICAMENTE ogni 2 secondi!
+
+
+⚡ AGGIORNAMENTI IN TEMPO REALE
+════════════════════════════════════════════════════════════════════
+✅ Quando un membro vota → tutti vedono il voto aggiornarsi
+✅ Quando l'admin passa alla domanda successiva → tutti passano
+✅ Non serve fare refresh manuale!
+✅ Funziona su PC, smartphone, tablet contemporaneamente
+
+
+💡 CONSIGLI UTILI
+════════════════════════════════════════════════════════════════════
+1. L'admin dovrebbe avere lo schermo GRANDE (PC/tablet)
+2. I membri possono usare anche lo smartphone
+3. Massimo 7 persone totali (1 admin + 6 membri)
+4. Ogni squadra ha la sua PASSWORD personalizzata
+5. L'ID squadra è UNICO - salvalo per ritrovare la squadra!
+6. Se qualcuno esce, può rientrare con lo stesso ID e password
+
+
+🔒 SICUREZZA
+════════════════════════════════════════════════════════════════════
+✅ Solo chi ha ID e password può unirsi
+✅ Ogni squadra è isolata dalle altre
+✅ I risultati vengono salvati nel database
+
+
+🏆 RISULTATI FINALI
+════════════════════════════════════════════════════════════════════
+Alla fine del quiz, tutti vedono:
+- Punteggio totale della squadra
+- Numero di risposte corrette/sbagliate
+- Badge di valutazione (Eccellente/Ottimo/Discreto)
+
+L'admin può vedere tutti i risultati nel Pannello Admin!
+
+
+❓ PROBLEMI COMUNI
+════════════════════════════════════════════════════════════════════
+Q: I voti non si aggiornano
+A: Aspetta 2-3 secondi, controlla la connessione internet
+
+Q: Non riesco a unirmi alla squadra
+A: Verifica ID e password, controlla che non sia piena (max 7)
+
+Q: L'admin è uscito per errore
+A: Può rientrare con lo stesso ID ma dovrà ricreare la squadra
+
+Q: Posso cambiare il mio voto?
+A: Sì, seleziona un'altra risposta e ri-clicca "Invia Voto"
+
+
+📱 ESEMPIO PRATICO
+════════════════════════════════════════════════════════════════════
+Scenario: Serata quiz con 5 amici
+
+1. Mario (admin) crea squadra "Pizza Lovers" con password "napoli123"
+2. Condivide su WhatsApp: 
+   "Team ID: team_1_20251120153045
+    Password: napoli123"
+3. Luigi, Anna, Paolo, Sara e Luca si uniscono
+4. Tutti e 6 sono nella lobby
+5. Mario clicca "Avvia Quiz"
+6. DOMANDA 1 appare per tutti
+7. Luigi vota A, Anna vota A, Paolo vota B, Sara vota A, Luca vota A
+8. Mario vede: A[4] B[1] C[0] D[0] E[0]
+9. Mario decide di confermare A (la più votata)
+10. DOMANDA 2 appare automaticamente per tutti
+11. Si ripete fino alla fine!
+12. Risultato finale: 9/12 risposte corrette! 🎉
+
+
+🌐 LINK UTILI
+════════════════════════════════════════════════════════════════════
+App Online: https://quiz-app-jykq.onrender.com
+GitHub: https://github.com/DannyKrueger94/quiz-app
+Admin Panel: https://quiz-app-jykq.onrender.com/admin
+
+Password Admin Panel: admin123
+
+
+═══════════════════════════════════════════════════════════════════
+         Buon divertimento! 🎉 Creato da Daniele
+═══════════════════════════════════════════════════════════════════
