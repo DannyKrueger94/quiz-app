@@ -1,9 +1,10 @@
 # 📋 Configurazione Progetto Quiz App
 
 ## 🎯 Descrizione del Progetto
-**Quiz App** è un'applicazione web interattiva basata su Flask che offre due modalità di gioco:
-- **Modalità Singola**: Quiz individuale con 12 domande
+**Quiz App** è un'applicazione web interattiva basata su Flask per quiz collaborativi:
 - **Modalità Squadra**: Quiz collaborativo con votazioni in tempo reale (1 admin + fino a 6 membri)
+- **Multi-Squadra**: Supporto simultaneo per squadre multiple indipendenti
+- **Real-Time Sync**: Aggiornamenti live tramite polling
 
 ---
 
@@ -31,6 +32,7 @@ itsdangerous==2.2.0
 markupsafe==3.0.3
 blinker==1.9.0
 colorama==0.4.6
+uuid (built-in)
 ```
 
 ---
@@ -49,17 +51,13 @@ Quiz/
 ├── PROJECT_CONFIG.md          # Questo file
 │
 ├── templates/                  # Template HTML Jinja2
-│   ├── mode_select.html       # Selezione modalità gioco
-│   ├── index.html             # Home page (modalità singola)
-│   ├── quiz.html              # Quiz modalità singola
-│   ├── final.html             # Risultati modalità singola
+│   ├── mode_select.html       # (Deprecato - redirect a team_create)
 │   ├── team_create.html       # Form creazione squadra
 │   ├── team_join.html         # Form join squadra
 │   ├── team_lobby.html        # Lobby pre-quiz squadra
 │   ├── team_quiz.html         # Quiz modalità squadra
 │   ├── team_final.html        # Risultati squadra
 │   ├── team_error.html        # Pagina errori squadra
-│   ├── password_error.html    # Errore password modalità singola
 │   ├── admin_login.html       # Login pannello admin
 │   └── admin.html             # Pannello amministrazione
 │
@@ -105,7 +103,11 @@ pip install -r requirements.txt
 ```python
 app.secret_key = "supersecretkey"     # ⚠️ Cambiare in produzione!
 ADMIN_PASSWORD = "admin123"           # ⚠️ Password pannello admin
-PASSWORD_QUIZ_SINGOLA = "quizdanny2025"  # Password modalità singola
+
+# Configurazione Session (v2.1+)
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 ora
 ```
 
 #### questions.json - Struttura Domande
@@ -168,13 +170,7 @@ waitress-serve --host=0.0.0.0 --port=5000 app:app
 
 ## 🎮 Funzionalità Principali
 
-### Modalità Singola
-- **Route**: `/mode` → `/quiz`
-- **Password**: Configurata in `app.py`
-- **Flusso**: Home → Inserimento nome → Quiz → Risultati
-- **Storage**: Salva risultati in `data.json`
-
-### Modalità Squadra
+### Modalità Squadra (Unica Disponibile)
 
 #### Sistema di Creazione Squadra
 - **Admin crea squadra** con:
@@ -206,19 +202,29 @@ active_teams = {
     "team_id": {
         "name": str,                    # Nome squadra
         "password": str,                # Password (lowercase)
-        "admin_session": str,           # Session ID admin
+        "admin_id": str,                # UUID univoco admin (NON session.sid)
         "admin_name": str,              # Nome admin visibile
-        "members": [session_ids],       # Lista session ID membri
-        "member_names": {               # Dizionario session_id: nome
-            session_id: name
+        "members": [uuid_strings],      # Lista UUID membri (str(uuid.uuid4()))
+        "member_names": {               # Dizionario UUID: nome
+            uuid_member: name
         },
         "current_question": int,        # -1 = lobby, 0+ = quiz attivo
         "votes": {                      # Voti membri per domanda corrente
-            member_session: answer
+            uuid_member: answer         # UUID garantisce persistenza
         },
         "answers": {},                  # Risposte confermate dall'admin
-        "final_answer": None            # Risposta finale selezionata
+        "final_answer": None,           # Risposta finale selezionata
+        "admin_selected_answer": str    # Selezione admin real-time
     }
+}
+
+# Session Flask (con session.permanent = True)
+session = {
+    "team_id": str,         # ID squadra
+    "admin_id": str,        # UUID admin (solo per admin)
+    "member_id": str,       # UUID membro (solo per membri)
+    "is_team_admin": bool,  # True se admin
+    "player_name": str      # Nome giocatore
 }
 ```
 
@@ -262,10 +268,19 @@ active_teams = {
 - ⚠️ **Non criptate**: Stored in plaintext (ambiente sviluppo)
 - 🔄 **Consiglio**: Implementare hashing (bcrypt) in produzione
 
-### Session Management
-- **Flask sessions**: Cookie-based
-- **Secret key**: Da cambiare in produzione
-- **Session ID**: Utilizzato per tracciare membri squadra
+### Session Management (v2.1+)
+- **Flask sessions**: Cookie-based con configurazione robusta
+- **Permanent sessions**: `session.permanent = True` per persistenza UUID
+- **Cookie settings**: HTTPOnly, SameSite=Lax, timeout 1h
+- **UUID Tracking**: 
+  - Admin identificato con `admin_id` (UUID univoco)
+  - Membri identificati con `member_id` (UUID univoco)
+  - NO uso di `session.sid` (unreliable)
+
+### Multi-Squadra Isolation
+- ✅ **Admin verification**: Ogni azione admin verifica `admin_id` match
+- ✅ **Team isolation**: Session `team_id` previene cross-team access
+- ✅ **UUID immutability**: ID univoci garantiscono no collisions
 
 ### Admin Panel
 - **Password protection**: `ADMIN_PASSWORD` in app.py
@@ -277,25 +292,22 @@ active_teams = {
 
 ### Pubblici
 ```
-GET  /                      → Redirect a /mode
-GET  /mode                  → Selezione modalità
-POST /quiz                  → Avvia quiz singolo (con password)
-GET  /quiz                  → Schermata quiz singolo
-POST /quiz/answer           → Invia risposta quiz singolo
-GET  /submit                → Risultati quiz singolo
+GET  /                      → Redirect a /team/create
+GET  /mode                  → Redirect a /team/create (deprecato)
 ```
 
-### Squadra
+### Squadra (Principale)
 ```
 GET  /team/create           → Form creazione squadra
-POST /team/create           → Crea squadra (ritorna team_id)
+POST /team/create           → Crea squadra (genera team_id + admin_id UUID)
 GET  /team/join             → Form join squadra
-POST /team/join             → Join a squadra esistente
-GET  /team/lobby            → Lobby pre-quiz
-POST /team/start            → Avvia quiz (solo admin)
+POST /team/join             → Join a squadra (genera member_id UUID)
+GET  /team/lobby            → Lobby pre-quiz (polling real-time)
+POST /team/start            → Avvia quiz (solo admin con admin_id match)
 GET  /team/quiz             → Schermata quiz squadra
-POST /team/vote             → Invia voto membro (JSON)
-POST /team/answer           → Conferma risposta admin
+POST /team/vote             → Invia voto membro (JSON, usa member_id)
+POST /team/admin/select     → Admin seleziona risposta (real-time)
+POST /team/answer           → Conferma risposta admin (admin_id verified)
 GET  /team/submit           → Risultati squadra
 GET  /team/data             → API polling real-time (JSON)
 ```
@@ -337,8 +349,13 @@ POST /admin/delete-all      → Elimina tutti i risultati
 
 ## 🐛 Troubleshooting
 
-### Problema: Voti non si aggiornano
-**Soluzione**: Verificare che il polling JavaScript sia attivo (console browser)
+### Problema: Voti non si aggiornano / Solo ultimo voto valido
+**Causa**: Session non persistente, `member_id` perso tra richieste  
+**Soluzione**: 
+- ✅ Verificare `session.permanent = True` in `create_team` e `join_team`
+- ✅ Controllare log terminale: `[VOTE] Votes PRIMA/DOPO`
+- ✅ Verificare cookie session presente in DevTools → Application → Cookies
+- ⚠️ Browser privato potrebbe bloccare cookies
 
 ### Problema: Password non funziona
 **Soluzione**: Controllare che sia case insensitive e lowercase in storage
@@ -347,12 +364,30 @@ POST /admin/delete-all      → Elimina tutti i risultati
 **Soluzione**: 
 - Verificare `member_names` nel dizionario `active_teams`
 - Controllare che il polling ricarichi la pagina quando cambia `member_count`
+- Controllare log: `[JOIN] Nuovo membro: {name} | ID: {uuid}`
 
 ### Problema: Team non trovato
 **Soluzione**: Il Team ID è case insensitive, verificare la ricerca nel codice
 
-### Problema: Session persa
-**Soluzione**: Verificare che `app.secret_key` sia configurata correttamente
+### Problema: Admin di squadra A controlla squadra B
+**Causa**: `admin_id` non verificato correttamente  
+**Soluzione**: ✅ Implementato in v2.1 - Ogni route admin verifica `team["admin_id"] == session["admin_id"]`
+
+### Problema: Session persa / UUID non persiste
+**Soluzione**: 
+- Verificare `app.config['PERMANENT_SESSION_LIFETIME']` configurato
+- Verificare `session.permanent = True` impostato
+- Controllare che `app.secret_key` sia configurata correttamente
+
+### Debug Mode
+Per attivare logging dettagliato, verificare log nel terminale PowerShell:  
+```
+[JOIN] Nuovo membro: Mario | ID: 123e4567-e89b-...
+[VOTE] Team: quiz_42, Member: 123e4567-e89b-..., Answer: A
+[VOTE] Votes PRIMA: {}
+[VOTE] Votes DOPO: {'123e4567-e89b-...': 'A'}
+[VOTE] Numero totale voti: 1
+```
 
 ---
 
@@ -439,6 +474,16 @@ Progetto privato - Tutti i diritti riservati
 
 ## 📅 Changelog
 
+### v2.1.0 (21 Novembre 2025) 🔥
+- 🔴 **BREAKING**: Rimossa modalità giocatore singolo
+- 🆔 **UUID System**: Admin e membri ora usano UUID univoci persistenti
+- 🔒 **Multi-Squadra Fix**: Isolamento completo tra squadre con `admin_id` verification
+- 💾 **Session Permanente**: `session.permanent = True` + configurazione cookie robusta
+- ✅ **Voti Cumulativi**: Fix persistenza `member_id` per accumulo voti corretto
+- 📊 **Debug Logging**: Log dettagliati `[JOIN]` e `[VOTE]` per troubleshooting
+- 🎯 **Admin Selection Real-Time**: Membri vedono scelta admin con bordo dorato
+- ⚙️ **Config Session**: HTTPOnly, SameSite=Lax, timeout 1h
+
 ### v2.0.0 (Novembre 2025)
 - ✨ Aggiunta modalità squadra collaborativa
 - 🎨 Design responsive mobile-first
@@ -458,16 +503,20 @@ Progetto privato - Tutti i diritti riservati
 
 ## 🔮 Roadmap Future
 
+- [x] ✅ Multi-squadra simultanea (v2.1)
+- [x] ✅ UUID tracking per persistenza (v2.1)
+- [x] ✅ Session permanente per voti cumulativi (v2.1)
 - [ ] Database PostgreSQL/MongoDB per storage persistente
 - [ ] Autenticazione utenti con login/registrazione
-- [ ] Multiplayer real-time con WebSocket
-- [ ] Classifiche e leaderboard
-- [ ] Statistiche dettagliate per squadra
+- [ ] WebSocket per aggiornamenti real-time (sostituzione polling)
+- [ ] Classifiche e leaderboard globali
+- [ ] Statistiche dettagliate per squadra (grafici)
 - [ ] Export risultati CSV/PDF
-- [ ] API REST per integrazioni esterne
-- [ ] PWA (Progressive Web App)
+- [ ] API REST documentata (OpenAPI/Swagger)
+- [ ] PWA (Progressive Web App) con offline mode
 - [ ] Dark mode
-- [ ] Supporto multilingua
+- [ ] Supporto multilingua (i18n)
+- [ ] Rimozione logging debug in produzione (configurabile)
 
 ---
 
