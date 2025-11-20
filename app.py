@@ -17,10 +17,13 @@ active_teams = {}
 #     "name": str,
 #     "password": str,
 #     "admin_session": str,
+#     "admin_name": str,
 #     "members": [session_ids],
+#     "member_names": {session_id: name},
 #     "current_question": int,
 #     "votes": {member_session: answer},
-#     "answers": {}
+#     "answers": {},
+#     "final_answer": None
 # }}
 
 def load_questions():
@@ -86,13 +89,14 @@ def create_team_post():
     team_name_clean = team_name.replace(" ", "_").lower()[:15]  # Max 15 chars
     team_id = f"{team_name_clean}_{random_num}"
     
-    # Create team
+    # Create team (password case insensitive)
     active_teams[team_id] = {
         "name": team_name,
-        "password": team_password,
+        "password": team_password.lower(),
         "admin_session": session.sid if hasattr(session, 'sid') else id(session),
         "admin_name": admin_name,
         "members": [],
+        "member_names": {},
         "current_question": -1,  # -1 = lobby, 0+ = quiz started
         "votes": {},
         "answers": {},
@@ -121,14 +125,21 @@ def join_team_post():
     if not team_id or not team_password or not member_name:
         return "Tutti i campi sono obbligatori", 400
     
-    # Check if team exists
-    if team_id not in active_teams:
+    # Check if team exists (case insensitive)
+    team_id_lower = team_id.lower()
+    found_team_id = None
+    for tid in active_teams.keys():
+        if tid.lower() == team_id_lower:
+            found_team_id = tid
+            break
+    
+    if not found_team_id:
         return render_template("team_error.html", message="Squadra non trovata")
     
-    team = active_teams[team_id]
+    team = active_teams[found_team_id]
     
-    # Check password
-    if team["password"] != team_password:
+    # Check password (case insensitive)
+    if team["password"] != team_password.lower():
         return render_template("team_error.html", message="Password errata")
     
     # Check if team is full (max 6 members + 1 admin)
@@ -139,9 +150,10 @@ def join_team_post():
     member_session_id = session.sid if hasattr(session, 'sid') else id(session)
     if member_session_id not in team["members"]:
         team["members"].append(member_session_id)
+        team["member_names"][member_session_id] = member_name
     
     # Set session data
-    session["team_id"] = team_id
+    session["team_id"] = found_team_id
     session["is_team_admin"] = False
     session["player_name"] = member_name
     
@@ -310,6 +322,7 @@ def team_data():
         "current_question": team["current_question"],
         "votes": votes_summary,
         "member_count": len(team["members"]),
+        "member_names": list(team.get("member_names", {}).values()),
         "final_answer": team.get("final_answer")
     })
 

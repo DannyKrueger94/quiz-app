@@ -157,6 +157,55 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .team-name {
+                font-size: 1.2em;
+            }
+
+            .info-section {
+                padding: 20px;
+            }
+
+            .info-label {
+                font-size: 0.95em;
+            }
+
+            .info-value {
+                font-size: 0.9em;
+                padding: 6px 12px;
+            }
+
+            .members-section h3 {
+                font-size: 1.1em;
+            }
+
+            .member-badge {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+
+            .start-button {
+                font-size: 1.2em;
+                padding: 18px;
+            }
+
+            .waiting-message {
+                font-size: 1em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -181,13 +230,13 @@
 
         <div class="members-section">
             <h3>Membri della Squadra:</h3>
-            <div class="member-list">
+            <div class="member-list" id="memberList">
                 <div class="member-badge admin-badge">
                     👑 {{ team.admin_name }}
                 </div>
-                {% for i in range(member_count) %}
+                {% for session_id in team.members %}
                 <div class="member-badge">
-                    Membro {{ i + 1 }}
+                    👤 {{ team.member_names.get(session_id, 'Membro') }}
                 </div>
                 {% endfor %}
             </div>
@@ -205,34 +254,44 @@
     </div>
 
     <script>
-        {% if not is_admin %}
-        // Membri: controlla se il quiz è iniziato
+        let currentMemberCount = {{ member_count }};
+        
+        // Polling per aggiornamenti
         setInterval(async () => {
             try {
                 const response = await fetch('/team/data');
                 const data = await response.json();
-                if (!data.error && data.current_question >= 0) {
-                    // Quiz iniziato, vai alla pagina quiz
+                
+                if (data.error) {
+                    console.error('Team data error:', data.error);
+                    return;
+                }
+                
+                {% if not is_admin %}
+                // Membri: controlla se il quiz è iniziato
+                if (data.current_question >= 0) {
                     window.location.href = '/team/quiz';
+                    return;
+                }
+                {% endif %}
+                
+                // Aggiorna lista membri se cambiata
+                if (data.member_count !== currentMemberCount) {
+                    currentMemberCount = data.member_count;
+                    
+                    // Aggiorna il contatore
+                    const counterElement = document.querySelector('.info-value');
+                    if (counterElement) {
+                        counterElement.textContent = (data.member_count + 1) + ' / 7';
+                    }
+                    
+                    // Ricarica per mostrare i nuovi membri
+                    location.reload();
                 }
             } catch (error) {
                 console.error('Polling error:', error);
             }
         }, 1000);
-        {% else %}
-        // Admin: aggiorna contatore membri in tempo reale
-        setInterval(async () => {
-            try {
-                const response = await fetch('/team/data');
-                const data = await response.json();
-                if (!data.error) {
-                    console.log('Members:', data.member_count);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }, 2000);
-        {% endif %}
     </script>
 </body>
 </html>

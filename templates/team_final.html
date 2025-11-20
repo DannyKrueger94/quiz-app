@@ -2,13 +2,14 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Risultati Squadra - Quiz</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -24,40 +25,46 @@
         .container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 60px;
-            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px 30px;
+            max-width: 500px;
             width: 100%;
             text-align: center;
-            animation: celebrate 1s ease;
+            animation: fadeIn 0.8s ease;
         }
 
-        @keyframes celebrate {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .trophy {
-            font-size: 6em;
+            font-size: 5em;
             margin-bottom: 20px;
             animation: bounce 2s infinite;
         }
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+            50% { transform: translateY(-15px); }
         }
 
         h1 {
             color: #f5576c;
-            font-size: 2.5em;
-            margin-bottom: 15px;
+            font-size: 2em;
+            margin-bottom: 10px;
         }
 
         .team-name {
             color: #333;
-            font-size: 1.5em;
-            margin-bottom: 30px;
+            font-size: 1.3em;
+            margin-bottom: 25px;
             font-weight: 600;
         }
 
@@ -66,70 +73,111 @@
             color: white;
             padding: 30px;
             border-radius: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
         }
 
         .score-number {
-            font-size: 4em;
+            font-size: 3.5em;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .score-label {
-            font-size: 1.2em;
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .percentage {
+            font-size: 2em;
+            font-weight: bold;
+            margin-top: 10px;
             opacity: 0.9;
         }
 
         .stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
         .stat-item {
             background: #f8f9fa;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 12px;
+            transition: transform 0.2s;
+        }
+
+        .stat-item:active {
+            transform: scale(0.95);
         }
 
         .stat-number {
-            font-size: 2em;
+            font-size: 2.2em;
             font-weight: bold;
             color: #f5576c;
+            margin-bottom: 5px;
         }
 
         .stat-label {
             color: #666;
-            margin-top: 5px;
+            font-size: 0.95em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 15px 0;
+            font-size: 1.1em;
+        }
+
+        .excellent { 
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white; 
+        }
+        .good { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+        }
+        .average { 
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white; 
+        }
+        .poor { 
+            background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+            color: white; 
         }
 
         .message {
             background: #fff3cd;
             color: #856404;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             border-left: 4px solid #ffc107;
             margin-bottom: 20px;
-            font-size: 1.1em;
+            font-size: 0.95em;
         }
 
         .button-group {
             display: flex;
-            gap: 15px;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         .button {
             flex: 1;
             padding: 15px;
             border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
+            border-radius: 12px;
+            font-size: 1em;
             font-weight: bold;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.2s;
         }
 
         .primary-button {
@@ -137,28 +185,59 @@
             color: white;
         }
 
-        .secondary-button {
-            background: #6c757d;
-            color: white;
+        .button:active {
+            transform: scale(0.95);
         }
 
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f5576c;
+            position: absolute;
+            animation: confetti-fall 3s linear infinite;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            margin-top: 20px;
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
         }
 
-        .excellent { background: #28a745; color: white; }
-        .good { background: #17a2b8; color: white; }
-        .average { background: #ffc107; color: #333; }
-        .poor { background: #dc3545; color: white; }
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.75em;
+            }
+
+            .team-name {
+                font-size: 1.2em;
+            }
+
+            .trophy {
+                font-size: 4em;
+            }
+
+            .score-number {
+                font-size: 3em;
+            }
+
+            .percentage {
+                font-size: 1.5em;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+
+            .badge {
+                font-size: 1em;
+                padding: 10px 18px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -170,6 +249,8 @@
         <div class="score-display">
             <div class="score-number">{{ score }}/{{ total }}</div>
             <div class="score-label">Risposte Corrette</div>
+            {% set percentage = (score / total * 100)|int %}
+            <div class="percentage">{{ percentage }}%</div>
         </div>
 
         <div class="stats">
@@ -185,24 +266,48 @@
 
         {% set percentage = (score / total * 100)|int %}
         {% if percentage >= 80 %}
-            <div class="badge excellent">🌟 Eccellente!</div>
+            <div class="badge excellent">🌟 Eccellente! Siete bravissimi!</div>
         {% elif percentage >= 60 %}
-            <div class="badge good">👍 Ottimo lavoro!</div>
+            <div class="badge good">👍 Ottimo lavoro di squadra!</div>
         {% elif percentage >= 40 %}
-            <div class="badge average">📚 Discreto</div>
+            <div class="badge average">📚 Discreto, ma si può migliorare!</div>
         {% else %}
-            <div class="badge poor">💪 C'è margine di miglioramento</div>
+            <div class="badge poor">💪 Continuate ad allenarvi!</div>
         {% endif %}
 
         {% if not is_admin %}
         <div class="message">
-            ⏳ Attendi che tutti i membri vedano i risultati...
+            ⏳ Attendi che tutti vedano i risultati...
         </div>
         {% endif %}
 
         <div class="button-group">
-            <a href="/mode" class="button primary-button" style="width: 100%;">🏠 Home</a>
+            <a href="/mode" class="button primary-button">🏠 Torna alla Home</a>
         </div>
     </div>
+
+    {% if percentage >= 80 %}
+    <script>
+        // Crea confetti per punteggi eccellenti
+        function createConfetti() {
+            const colors = ['#f093fb', '#f5576c', '#667eea', '#764ba2', '#11998e', '#38ef7d'];
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    confetti.style.animationDelay = Math.random() + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 50);
+            }
+        }
+        
+        createConfetti();
+    </script>
+    {% endif %}
 </body>
 </html>

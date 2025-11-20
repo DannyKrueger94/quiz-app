@@ -2,51 +2,57 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Quiz Squadra</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
         .header {
             background: white;
             border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
         }
 
         .progress-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            font-size: 0.95em;
         }
 
         .question-number {
-            font-size: 1.2em;
             font-weight: bold;
             color: #f5576c;
         }
 
+        .team-name {
+            font-weight: 600;
+            color: #666;
+        }
+
         .progress-bar {
             background: #e0e0e0;
-            height: 10px;
+            height: 8px;
             border-radius: 5px;
             overflow: hidden;
         }
@@ -57,122 +63,13 @@
             transition: width 0.3s ease;
         }
 
-        .main-content {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-
-        .question-section {
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .question-image {
-            width: 100%;
-            max-height: 300px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 25px;
-        }
-
-        .question-text {
-            font-size: 1.5em;
-            color: #333;
-            margin-bottom: 30px;
-            line-height: 1.5;
-        }
-
-        .answers {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .answer-option {
-            position: relative;
-        }
-
-        .answer-option input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-        }
-
-        .answer-label {
-            display: block;
-            padding: 18px 20px;
-            background: #f8f9fa;
-            border: 3px solid #e0e0e0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1.1em;
-        }
-
-        .answer-option input[type="radio"]:checked + .answer-label {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            border-color: #f5576c;
-        }
-
-        .answer-label:hover {
-            border-color: #f5576c;
-            transform: translateX(5px);
-        }
-
-        .voting-section {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .voting-section h3 {
-            color: #f5576c;
-            margin-bottom: 20px;
-            font-size: 1.4em;
-            text-align: center;
-        }
-
-        .vote-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            margin-bottom: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .vote-letter {
-            font-weight: bold;
-            color: #f5576c;
-            font-size: 1.2em;
-        }
-
-        .vote-count {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .vote-count.updated {
-            transform: scale(1.2);
-            box-shadow: 0 0 15px rgba(245, 87, 108, 0.6);
-        }
-
         .role-badge {
             display: inline-block;
-            padding: 8px 15px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 15px;
             font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
+            font-size: 0.85em;
+            margin-bottom: 10px;
         }
 
         .admin-role {
@@ -185,50 +82,111 @@
             color: white;
         }
 
-        .submit-button {
+        .question-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-image {
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-            border: none;
+            max-height: 250px;
+            object-fit: cover;
             border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
             font-size: 1.2em;
-            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-option {
+            position: relative;
+        }
+
+        .answer-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .answer-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 3px solid #e0e0e0;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 20px;
+            transition: all 0.2s;
+            font-size: 1em;
         }
 
-        .submit-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(17, 153, 142, 0.4);
+        .answer-text {
+            flex: 1;
+            padding-right: 10px;
         }
 
-        .submit-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .vote-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+            min-width: 40px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .vote-button {
+        .vote-badge.updated {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(245, 87, 108, 0.6);
+        }
+
+        .answer-option input[type="radio"]:checked + .answer-label {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.2) 0%, rgba(245, 87, 108, 0.2) 100%);
+            border-color: #f5576c;
+        }
+
+        .answer-label:active {
+            transform: scale(0.98);
+        }
+
+        .submit-button, .vote-button {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
             border: none;
             border-radius: 10px;
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 20px;
+            transition: all 0.2s;
+            margin-top: 15px;
         }
 
-        .vote-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        .vote-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
-        .vote-button:disabled {
+        .submit-button:active, .vote-button:active {
+            transform: scale(0.98);
+        }
+
+        .submit-button:disabled, .vote-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -236,16 +194,49 @@
         .info-message {
             background: #d1ecf1;
             color: #0c5460;
-            padding: 15px;
+            padding: 12px;
             border-radius: 10px;
-            margin-top: 15px;
+            margin-top: 12px;
             text-align: center;
             border-left: 4px solid #17a2b8;
+            font-size: 0.95em;
         }
 
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
+        .members-info {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 12px;
+            }
+
+            .question-section {
+                padding: 15px;
+            }
+
+            .question-text {
+                font-size: 1.1em;
+            }
+
+            .answer-label {
+                padding: 12px;
+                font-size: 0.95em;
+            }
+
+            .vote-badge {
+                padding: 5px 10px;
+                font-size: 0.85em;
+                min-width: 35px;
             }
         }
     </style>
@@ -254,80 +245,67 @@
     <div class="container">
         <div class="header">
             <div class="progress-info">
-                <span class="question-number">Domanda {{ current }} di {{ total }}</span>
-                <span>{{ team.name }}</span>
+                <span class="question-number">Domanda {{ current }} / {{ total }}</span>
+                <span class="team-name">{{ team.name }}</span>
             </div>
             <div class="progress-bar">
                 <div class="progress-fill" style="width: {{ (current / total * 100)|int }}%"></div>
             </div>
         </div>
 
-        <div class="main-content">
-            <div class="question-section">
-                {% if question.image %}
-                <img src="{{ question.image }}" alt="Immagine domanda" class="question-image">
-                {% endif %}
+        <div class="question-section">
+            <div class="role-badge {% if is_admin %}admin-role{% else %}member-role{% endif %}">
+                {% if is_admin %}👑 ADMIN{% else %}🗳️ MEMBRO{% endif %}
+            </div>
 
-                <h2 class="question-text">{{ question.question }}</h2>
+            {% if question.image %}
+            <img src="{{ question.image }}" alt="Immagine domanda" class="question-image">
+            {% endif %}
 
-                {% if is_admin %}
-                <form action="/team/answer" method="POST" id="answerForm">
-                    <div class="answers">
-                        {% for key, value in question.answers.items() %}
-                        <div class="answer-option">
-                            <input type="radio" name="answer" id="answer{{ key }}" value="{{ key }}" required>
-                            <label for="answer{{ key }}" class="answer-label">
-                                <strong>{{ key }}.</strong> {{ value }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <button type="submit" class="submit-button">
-                        ✅ Conferma Risposta e Avanti
-                    </button>
-                </form>
-                {% else %}
-                <div class="answers" id="memberAnswers">
+            <h2 class="question-text">{{ question.question }}</h2>
+
+            {% if is_admin %}
+            <div class="members-info">
+                👥 Voti dei membri mostrati di fianco a ogni risposta
+            </div>
+            <form action="/team/answer" method="POST" id="answerForm">
+                <div class="answers">
                     {% for key, value in question.answers.items() %}
                     <div class="answer-option">
-                        <input type="radio" name="vote" id="vote{{ key }}" value="{{ key }}">
-                        <label for="vote{{ key }}" class="answer-label">
-                            <strong>{{ key }}.</strong> {{ value }}
+                        <input type="radio" name="answer" id="answer{{ key }}" value="{{ key }}" required>
+                        <label for="answer{{ key }}" class="answer-label">
+                            <span class="answer-text"><strong>{{ key }}.</strong> {{ value }}</span>
+                            <span class="vote-badge" id="votes{{ key }}">{{ votes.get(key, 0) }}</span>
                         </label>
                     </div>
                     {% endfor %}
                 </div>
-                <button type="button" class="vote-button" id="voteButton" disabled>
-                    🗳️ Invia il Tuo Voto
+                <button type="submit" class="submit-button">
+                    ✅ Conferma Risposta e Avanti
                 </button>
-                <div class="info-message" id="voteStatus">
-                    Seleziona una risposta per votare
-                </div>
-                {% endif %}
+            </form>
+            {% else %}
+            <div class="members-info">
+                🗳️ Seleziona la tua risposta e vota. L'admin vedrà i voti di tutti!
             </div>
-
-            <div class="voting-section">
-                <div class="role-badge {% if is_admin %}admin-role{% else %}member-role{% endif %}">
-                    {% if is_admin %}👑 ADMIN{% else %}🗳️ MEMBRO{% endif %}
+            <div class="answers" id="memberAnswers">
+                {% for key, value in question.answers.items() %}
+                <div class="answer-option">
+                    <input type="radio" name="vote" id="vote{{ key }}" value="{{ key }}">
+                    <label for="vote{{ key }}" class="answer-label">
+                        <span class="answer-text"><strong>{{ key }}.</strong> {{ value }}</span>
+                        <span class="vote-badge" id="votes{{ key }}">{{ votes.get(key, 0) }}</span>
+                    </label>
                 </div>
-
-                <h3>📊 Voti della Squadra</h3>
-                
-                <div id="votesDisplay">
-                    {% for answer in ['A', 'B', 'C', 'D', 'E'] %}
-                    <div class="vote-item">
-                        <span class="vote-letter">{{ answer }}</span>
-                        <span class="vote-count" id="votes{{ answer }}">{{ votes.get(answer, 0) }}</span>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                {% if is_admin %}
-                <div class="info-message" style="margin-top: 20px;">
-                    👀 Vedi i voti dei membri e scegli la risposta finale
-                </div>
-                {% endif %}
+                {% endfor %}
             </div>
+            <button type="button" class="vote-button" id="voteButton" disabled>
+                🗳️ Invia il Tuo Voto
+            </button>
+            <div class="info-message" id="voteStatus">
+                Seleziona una risposta per votare
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -395,7 +373,7 @@
             }
         }
 
-        // Poll for updates - più frequente
+        // Poll for updates
         setInterval(async () => {
             try {
                 const response = await fetch('/team/data');
@@ -417,11 +395,11 @@
             } catch (error) {
                 console.error('Error polling updates:', error);
             }
-        }, 1000);  // Ogni secondo invece di 2
+        }, 1000);
     </script>
     {% else %}
     <script>
-        // Admin: Poll for vote updates - più frequente
+        // Admin: Poll for vote updates
         setInterval(async () => {
             try {
                 const response = await fetch('/team/data');
@@ -432,19 +410,22 @@
                     return;
                 }
                 
-                // Update vote counts
+                // Update vote counts with animation
                 for (const [answer, count] of Object.entries(data.votes)) {
                     const element = document.getElementById('votes' + answer);
                     if (element) {
+                        const oldCount = parseInt(element.textContent) || 0;
                         element.textContent = count;
+                        if (count !== oldCount) {
+                            element.classList.add('updated');
+                            setTimeout(() => element.classList.remove('updated'), 300);
+                        }
                     }
                 }
-                
-                console.log('Votes updated:', data.votes);
             } catch (error) {
                 console.error('Error polling updates:', error);
             }
-        }, 800);  // Ogni 0.8 secondi per admin
+        }, 800);
     </script>
     {% endif %}
 </body>

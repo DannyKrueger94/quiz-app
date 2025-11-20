@@ -2,13 +2,14 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Seleziona Modalità - Quiz</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -18,14 +19,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 30px 20px;
             max-width: 600px;
             width: 100%;
             animation: slideIn 0.5s ease;
@@ -44,76 +45,112 @@
 
         h1 {
             color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 15px;
+            font-size: 2em;
+            margin-bottom: 10px;
             text-align: center;
         }
 
         .subtitle {
             text-align: center;
             color: #666;
-            margin-bottom: 40px;
-            font-size: 1.1em;
+            margin-bottom: 30px;
+            font-size: 1em;
         }
 
         .mode-options {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         .mode-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 15px;
-            padding: 30px;
+            padding: 25px 20px;
             color: white;
             text-decoration: none;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
+            display: block;
         }
 
-        .mode-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        .mode-card:active {
+            transform: scale(0.98);
         }
 
         .mode-card h2 {
-            font-size: 1.8em;
-            margin-bottom: 10px;
+            font-size: 1.5em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .mode-card p {
-            font-size: 1em;
-            opacity: 0.9;
+            font-size: 0.95em;
+            opacity: 0.95;
+            line-height: 1.4;
         }
 
         .icon {
-            font-size: 3em;
-            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        .team-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
 
         .team-options {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 10px;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .team-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.6);
             color: white;
-            padding: 15px;
+            padding: 12px 8px;
             border-radius: 10px;
             text-decoration: none;
             text-align: center;
-            transition: all 0.3s;
+            transition: all 0.2s;
             font-weight: bold;
+            font-size: 0.95em;
+            display: block;
         }
 
-        .team-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: white;
+        .team-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 15px;
+            }
+
+            h1 {
+                font-size: 1.75em;
+            }
+
+            .mode-card {
+                padding: 20px 15px;
+            }
+
+            .mode-card h2 {
+                font-size: 1.3em;
+            }
+
+            .mode-card p {
+                font-size: 0.9em;
+            }
+
+            .team-btn {
+                padding: 10px 6px;
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
@@ -124,14 +161,12 @@
 
         <div class="mode-options">
             <a href="/quiz" class="mode-card" onclick="event.preventDefault(); document.getElementById('singleForm').submit();">
-                <div class="icon">👤</div>
-                <h2>Modalità Singola</h2>
+                <h2><span class="icon">👤</span> Modalità Singola</h2>
                 <p>Gioca da solo e testa le tue conoscenze!</p>
             </a>
 
-            <div class="mode-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                <div class="icon">👥</div>
-                <h2>Modalità Squadra</h2>
+            <div class="mode-card team-card">
+                <h2><span class="icon">👥</span> Modalità Squadra</h2>
                 <p>Gioca in squadra con votazioni collaborative!</p>
                 <div class="team-options">
                     <a href="/team/create" class="team-btn">Crea Squadra</a>
