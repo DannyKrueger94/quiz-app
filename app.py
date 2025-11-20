@@ -15,18 +15,18 @@ def load_questions():
 
 def save_submission(name, answers, score):
     # Try to read existing data
-    if os.path.exists(DATA_FILE):
-        try:
-            with open(DATA_FILE, "r") as f:
+    try:
+        if os.path.exists(DATA_FILE) and os.path.getsize(DATA_FILE) > 0:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
                 content = f.read().strip()
                 if content:
                     data = json.loads(content)
                 else:
                     data = []
-        except (json.JSONDecodeError, ValueError):
-            # If file is corrupted, start fresh
+        else:
             data = []
-    else:
+    except (json.JSONDecodeError, ValueError, OSError):
+        # If file is corrupted or can't be read, start fresh
         data = []
 
     data.append({
@@ -35,8 +35,12 @@ def save_submission(name, answers, score):
         "score": score
     })
 
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=4)
+    try:
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+    except OSError:
+        # If we can't write to file, continue without saving (for read-only filesystems)
+        pass
 
 @app.route("/")
 def index():
