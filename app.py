@@ -225,6 +225,7 @@ def start_team_quiz():
     team["votes"] = {}
     team["answers"] = {}
     team["final_answer"] = None
+    team["start_time"] = datetime.now().timestamp()  # Salva timestamp inizio
     
     return redirect(url_for("team_quiz"))
 
@@ -238,6 +239,11 @@ def team_quiz():
     team = active_teams[team_id]
     questions = load_questions()
     current_idx = team["current_question"]
+    
+    # Calcola tempo rimanente (60 minuti = 3600 secondi)
+    start_time = team.get("start_time", datetime.now().timestamp())
+    elapsed_time = datetime.now().timestamp() - start_time
+    time_remaining = max(0, 3600 - int(elapsed_time))  # secondi rimanenti
     
     if current_idx >= len(questions):
         return redirect(url_for("team_submit"))
@@ -257,6 +263,7 @@ def team_quiz():
                          is_admin=is_admin,
                          team=team,
                          votes=votes_summary,
+                         time_remaining=time_remaining,
                          final_answer=team.get("final_answer"))
 
 @app.route("/team/vote", methods=["POST"])

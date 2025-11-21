@@ -217,6 +217,52 @@
             color: #666;
         }
 
+        .timer-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50 0%, #8bc34a 50%, #ffc107 75%, #f44336 100%);
+            transition: width 1s linear;
+        }
+
+        .timer-text {
+            position: fixed;
+            top: 8px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .timer-text.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .timer-text.danger {
+            background: #f8d7da;
+            color: #721c24;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 10px;
@@ -248,6 +294,12 @@
     </style>
 </head>
 <body>
+    <!-- Barra Timer -->
+    <div class="timer-bar">
+        <div class="timer-fill" id="timerFill"></div>
+    </div>
+    <div class="timer-text" id="timerText">⏱️ 60:00</div>
+
     <div class="container">
         <div class="header">
             <div class="progress-info">
@@ -477,5 +529,47 @@
         }, 800);
     </script>
     {% endif %}
+
+    <!-- Script Timer -->
+    <script>
+        let timeRemaining = {{ time_remaining }};  // secondi rimanenti dal server
+        const totalTime = 3600;  // 60 minuti in secondi
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const timerText = document.getElementById('timerText');
+            const timerFill = document.getElementById('timerFill');
+            
+            // Aggiorna testo timer
+            timerText.textContent = `⏱️ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Aggiorna barra progresso (inversamente proporzionale al tempo rimanente)
+            const percentage = (timeRemaining / totalTime) * 100;
+            timerFill.style.width = percentage + '%';
+            
+            // Cambia colore in base al tempo
+            if (timeRemaining < 300) {  // meno di 5 minuti
+                timerText.classList.add('danger');
+                timerText.classList.remove('warning');
+            } else if (timeRemaining < 600) {  // meno di 10 minuti
+                timerText.classList.add('warning');
+                timerText.classList.remove('danger');
+            }
+            
+            // Se il tempo è scaduto
+            if (timeRemaining <= 0) {
+                alert('⏰ Tempo scaduto! Il quiz sarà inviato automaticamente.');
+                window.location.href = '/team/submit';
+                return;
+            }
+            
+            timeRemaining--;
+        }
+        
+        // Aggiorna ogni secondo
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    </script>
 </body>
 </html>
