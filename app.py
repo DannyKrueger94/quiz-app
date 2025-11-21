@@ -420,7 +420,7 @@ def admin_login():
         if pwd == ADMIN_PASSWORD:
             session["admin"] = True
             return redirect(url_for("admin_panel"))
-        return "Password errata"
+        return render_template("admin_error.html")
     return render_template("admin_login.html")
 
 @app.route("/admin/panel")
