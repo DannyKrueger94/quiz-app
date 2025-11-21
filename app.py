@@ -51,11 +51,26 @@ def save_submission(name, answers, score):
         # If file is corrupted or can't be read, start fresh
         data = []
 
-    data.append({
-        "name": name,
-        "answers": answers,
-        "score": score
-    })
+    # Cerca se la squadra esiste già (per evitare duplicati)
+    team_exists = False
+    for i, entry in enumerate(data):
+        if entry["name"] == name:
+            # Aggiorna la riga esistente
+            data[i] = {
+                "name": name,
+                "answers": answers,
+                "score": score
+            }
+            team_exists = True
+            break
+    
+    # Se la squadra non esiste, aggiungila
+    if not team_exists:
+        data.append({
+            "name": name,
+            "answers": answers,
+            "score": score
+        })
 
     try:
         with open(DATA_FILE, "w", encoding="utf-8") as f:
@@ -89,10 +104,8 @@ def create_team_post():
     if not team_name or not team_password or not admin_name:
         return "Tutti i campi sono obbligatori", 400
     
-    # Generate unique team ID: team_name + random number 1-100
-    random_num = random.randint(1, 100)
-    team_name_clean = team_name.replace(" ", "_").lower()[:15]  # Max 15 chars
-    team_id = f"{team_name_clean}_{random_num}"
+    # Generate unique team ID: 5 random digits (10000-99999)
+    team_id = str(random.randint(10000, 99999))
     
     # Generate unique admin ID per supportare multi-squadra
     admin_id = str(uuid.uuid4())
