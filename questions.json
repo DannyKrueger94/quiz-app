@@ -1,41 +1,197 @@
 [
     {
         "id": 1,
-        "question": "Chi fono",
+        "question": "Scienza: Quale molecola è responsabile dell'odore della pioggia?",
         "answers": {
-            "A": "brembina",
-            "B": "kawaina",
-            "C": "gelsomina",
-            "D": "davidina",
-            "E": "filippina"
+            "A": "Etanolo",
+            "B": "Ozonide",
+            "C": "Geosmina",
+            "D": "Acido solforico",
+            "E": "Adenosina"
         },
-        "correct": "E",
-        "image": "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=600&h=400&fit=crop"
+        "correct": "C",
+        "image": "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=600&h=400&fit=crop"
     },
     {
         "id": 2,
-        "question": "quanti faffi fono",
+        "question": "Sport: Chi è il calciatore con più goal segnati in una singola edizione dei Mondiali?",
         "answers": {
-            "A": "1",
-            "B": "J2",
-            "C": "3",
-            "D": "4",
-            "E": "5"
+            "A": "Ronaldo (il Fenomeno)",
+            "B": "Just Fontaine",
+            "C": "Miroslav Klose",
+            "D": "Lionel Messi",
+            "E": "Eusebio"
         },
-        "correct": "A",
-        "image": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop"
+        "correct": "B",
+        "image": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=600&h=400&fit=crop"
     },
     {
         "id": 3,
-        "question": "Gigiuli o gigiulà?",
+        "question": "Geografia: Qual'è capitale più a nord tra queste?",
         "answers": {
-            "A": "gigi",
-            "B": "gigo",
-            "C": "giga",
-            "D": "gagi",
-            "E": "gagggggi"
+            "A": "Copenaghen",
+            "B": "Dublino",
+            "C": "Tallinn",
+            "D": "Vilnius",
+            "E": "Stoccolma"
+        },
+        "correct": "C",
+        "image": "https://images.unsplash.com/photo-1513581166391-887a96ddeafd?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 4,
+        "question": "Natura: Quale di questi animali può letteralmente dormire con un occhio aperto?",
+        "answers": {
+            "A": "Panda",
+            "B": "Delfino",
+            "C": "Koala",
+            "D": "Struzzo",
+            "E": "Canguro"
+        },
+        "correct": "B",
+        "image": "https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 5,
+        "question": "Mitologia: Chi è famoso per aver aperto una scatola che NON avrebbe dovuto aprire?",
+        "answers": {
+            "A": "Teseo",
+            "B": "Prometeo",
+            "C": "Sisifo",
+            "D": "Pandora",
+            "E": "Aracne"
+        },
+        "correct": "D",
+        "image": "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 6,
+        "question": "Astronomia: Quale pianeta nel Sistema Solare ruota 'al contrario'?",
+        "answers": {
+            "A": "Saturno",
+            "B": "Nettuno",
+            "C": "Venere",
+            "D": "Marte",
+            "E": "Mercurio"
+        },
+        "correct": "C",
+        "image": "https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 7,
+        "question": "Alimentazione: Quale di questi cibi NON è originario dell'Italia?",
+        "answers": {
+            "A": "Gelato",
+            "B": "Pizza",
+            "C": "Spaghetti alla bolognese",
+            "D": "Lasagne",
+            "E": "Polenta"
+        },
+        "correct": "C",
+        "image": "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 8,
+        "question": "Musica: Quale di questi gruppi NON è originario del Regno Unito?",
+        "answers": {
+            "A": "The Beatles",
+            "B": "The Rolling Stones",
+            "C": "Queen",
+            "D": "Pink Floyd",
+            "E": "AC/DC"
         },
         "correct": "E",
-        "image": "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600&h=400&fit=crop"
+        "image": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 9,
+        "question": "Storia: Quale di questi imperatori romani NON morì assassinato?",
+        "answers": {
+            "A": "Antonino Pio",
+            "B": "Caligola",
+            "C": "Nerone",
+            "D": "Cesare",
+            "E": "Commodo"
+        },
+        "correct": "A",
+        "image": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 10,
+        "question": "Signore degli Anelli: Il nome Galadriel in Quenya (alto elfico) significa:",
+        "answers": {
+            "A": "Regina degli Elfi",
+            "B": "Fanciulla coronata da una ghirlanda radiosa",
+            "C": "Madre dei Boschi Antichi",
+            "D": "Figlia di Celeborn",
+            "E": "Luce della foresta"
+        },
+        "correct": "B",
+        "image": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 11,
+        "question": "Anime: Quando è stato registrato il primo cortometraggio di animazione giapponese?",
+        "answers": {
+            "A": "1963",
+            "B": "1976",
+            "C": "1932",
+            "D": "1917",
+            "E": "1955"
+        },
+        "correct": "D",
+        "image": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 12,
+        "question": "Religione: Quanti sacramenti ci sono nella Chiesa cattolica??",
+        "answers": {
+            "A": "5",
+            "B": "6",
+            "C": "7",
+            "D": "8",
+            "E": "9"
+        },
+        "correct": "C",
+        "image": "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 13,
+        "question": "Negliozzo: Qual'è il suo anime preferito?",
+        "answers": {
+            "A": "Demon Slayer",
+            "B": "Bleach",
+            "C": "Jujutsu Kaisen",
+            "D": "La città incantata",
+            "E": "Dragon Ball Z"
+        },
+        "correct": "E",
+        "image": "https://images.unsplash.com/photo-1613376023733-0a73315d9b06?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 14,
+        "question": "Neglino: Quanti gol in campionato ha fatto fino ad oggi? 22/11/2025",
+        "answers": {
+            "A": "0",
+            "B": "1",
+            "C": "2",
+            "D": "3",
+            "E": "4"
+        },
+        "correct": "D",
+        "image": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&h=400&fit=crop"
+    },
+    {
+        "id": 15,
+        "question": "Danny: Quali patatine mi piacciono?",
+        "answers": {
+            "A": "Lime pepe rosa",
+            "B": "Barbecue",
+            "C": "Classiche",
+            "D": "Rustiche",
+            "E": "Al Pollo"
+        },
+        "correct": "D",
+        "image": "https://images.unsplash.com/photo-1621447504864-d8686e12698c?w=600&h=400&fit=crop"
     }
 ]

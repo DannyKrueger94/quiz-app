@@ -366,6 +366,11 @@ def team_submit():
     team = active_teams[team_id]
     questions = load_questions()
     
+    # Verifica timeout (60 minuti = 3600 secondi)
+    start_time = team.get("start_time", datetime.now().timestamp())
+    elapsed_time = datetime.now().timestamp() - start_time
+    timeout_exceeded = elapsed_time > 3600
+    
     score = 0
     for q in questions:
         q_id = str(q["id"])
